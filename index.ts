@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { Command } from "commander";
+import meow from "meow";
 import validatePackageName from "validate-npm-package-name";
 import terminalLink from "terminal-link";
 import commandExists from "command-exists";
@@ -11,20 +11,20 @@ import prompts from "prompts";
 import { exec } from "child_process";
 import fs from "fs";
 import fse from "fs-extra";
+import { fileURLToPath } from "url";
 import path from "path";
 import { EOL } from "os";
 
 const logo = `
-████████████▄▄,          ▄████████▄       █████████████      ▄▄█████████▄▄,     
-████████████████▄     ███████████████▄   ▐█████████████      ████████████████,  
-█████████████████    ██████████████████  ▐█████████████      ██████████████████ 
-█████████████████   ████████████████████ ▐█████████████      ██████████████████▄
-████████████████   █████████████████████▌▐█████████████      ███████████████████
-████████████████▄  █████████████████████▌▐█████████████      ███████████████████
-██████████████████ █████████████████████▌▐█████████████      ███████████████████
-███████████████████▐████████████████████ ▐█████████████████  ██████████████████▌
-███████████████████ ▀██████████████████⌐ └█████████████████  ██████████████████ 
-██████████████████   ▀████████████████    ▀████████████████  ████████████████▀  
+                                                            
+  @@@@@@@@@@*      @@@@@@@@*   @@@@@@@@@@    @@@@@@@@@@@    
+  @@@@@@@@@@@@  *@@@@@@@@@@@@@ @@@@@@@@@@    @@@@@@@@@@@@@  
+  @@@@@@@@@@@@  @@@@@@@@@@@@@@@@@@@@@@@@@    @@@@@@@@@@@@@@ 
+  @@@@@@@@@@@  @@@@@@@@@@@@@@@@@@@@@@@@@@    @@@@@@@@@@@@@@ 
+  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ @@@@@@@@@@@@@@ 
+  @@@@@@@@@@@@@ @@@@@@@@@@@@@@ .@@@@@@@@@@@@ @@@@@@@@@@@@@  
+  ............    ...........   ............ ............
+
 `;
 
 const createFolder = (folderName: string) => {
@@ -136,7 +136,21 @@ const createEnvFiles = async (folderName: string, apiKey: string) => {
   await fs.promises.writeFile(envProductionPath, envProductionContent);
 };
 
-const getAppName = async (): Promise<string> => {
+const getAppName = async (appNameFromArg?: string): Promise<string> => {
+  if (appNameFromArg) {
+    const validationResult = validatePackageName(
+      path.basename(path.resolve(appNameFromArg))
+    );
+    if (validationResult.validForNewPackages) {
+      return appNameFromArg;
+    }
+    const problems = [
+      ...(validationResult.errors || []),
+      ...(validationResult.warnings || []),
+    ];
+    throw new Error("Your project name is invalid: " + problems![0]);
+  }
+
   const response = await prompts({
     type: "text",
     name: "appName",
@@ -159,14 +173,20 @@ const getAppName = async (): Promise<string> => {
   return response.appName;
 };
 
-const showSuccessMessage = (packageManager: string | null) => {
+const showSuccessMessage = (appName: string, packageManager: string | null) => {
+  console.log("");
   console.log(chalk.green("Bold app created successfully!"));
+  console.log("");
 
   if (packageManager) {
     const startCommand =
       packageManager === "yarn" ? "yarn dev" : `${packageManager} run dev`;
     console.log(chalk.green(`To start the app, run the following command:`));
-    console.log(chalk.green(`${startCommand}`));
+    console.log("");
+    console.log("");
+    console.log(chalk.green(`      cd ${appName} && ${startCommand}`));
+    console.log("");
+    console.log("");
   } else {
     console.log(
       chalk.yellow(
@@ -176,10 +196,11 @@ const showSuccessMessage = (packageManager: string | null) => {
   }
 };
 
-const createBoldApp = async () => {
-  console.log(chalk.green(logo + "Welcome to Create Bold App!"));
+const createBoldApp = async (appNameFromArg?: string) => {
+  console.log(chalk.green("Welcome to Create Bold App!"));
+  // console.log(chalk.green(logo + "Welcome to Create Bold App!"));
 
-  const appName = await getAppName();
+  const appName = await getAppName(appNameFromArg);
   // Check if folder already exists
   if (fs.existsSync(appName)) {
     console.error(
@@ -190,15 +211,15 @@ const createBoldApp = async () => {
     return;
   }
 
-  const linkText = "get it here";
-  const apiKeyLink = terminalLink(
-    linkText,
-    "https://app.boldvideo.io/settings"
-  );
+  // const linkText = "get it here";
+  // const apiKeyLink = terminalLink(
+  //   linkText,
+  //   "https://app.boldvideo.io/settings"
+  // );
   const response = await prompts({
     type: "text",
     name: "apiKey",
-    message: `Please enter your Bold Video API key (you can ${apiKeyLink}):`,
+    message: `Please enter your Bold Video API key (you can at https://app.boldvideo.io/settings):`,
   });
 
   const { apiKey } = response;
@@ -208,9 +229,11 @@ const createBoldApp = async () => {
       `Creating your bold app "${appName}" with API key "${apiKey}"...`
     )
   );
-  // TODO: Add template copy actions and other setup tasks here
+
   try {
     await createFolder(appName);
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
     const templatePath = path.join(
       __dirname,
       "..",
@@ -222,17 +245,36 @@ const createBoldApp = async () => {
     await createEnvFiles(appName, apiKey);
     const packageManager = await detectPackageManager();
     await installDependencies(appName, packageManager);
-    showSuccessMessage(packageManager);
+    showSuccessMessage(appName, packageManager);
   } catch (error) {
     console.error(chalk.red("Error creating Bold app:"), error);
   }
 };
 
-const program = new Command();
+const cli = meow(
+  `
+    Usage
+      $ create-bold-app [appName]
 
-program
-  .version("0.1.0")
-  .description("Create a new Bold app")
-  .action(createBoldApp);
+    Options
+      --version   Show version number
 
-program.parseAsync(process.argv);
+    Examples
+      $ create-bold-app my-test-app
+`,
+  {
+    importMeta: import.meta,
+    flags: {
+      version: {
+        type: "boolean",
+        alias: "v",
+      },
+    },
+  }
+);
+
+if (cli.flags.version) {
+  console.log(cli.pkg.version);
+} else {
+  createBoldApp(cli.input[0]);
+}
