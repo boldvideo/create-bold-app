@@ -31,11 +31,11 @@
 You can create a new project interactively by running:
 
 ```sh
-npx create-next-app@latest
+npx create-bold-app
 # or
-yarn create next-app
+yarn create bold-app
 # or
-pnpm create next-app
+pnpm create bold-app
 ```
 
 You will be asked for the name of your project and your Bold Video API Key, which you can get here: https://app.boldvideo.io/settings
