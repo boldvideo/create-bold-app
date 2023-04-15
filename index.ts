@@ -181,10 +181,11 @@ const showSuccessMessage = (appName: string, packageManager: string | null) => {
   if (packageManager) {
     const startCommand =
       packageManager === "yarn" ? "yarn dev" : `${packageManager} run dev`;
-    console.log(chalk.green(`To start the app, run the following command:`));
+    console.log(chalk.green(`To start the app, run the following commands:`));
     console.log("");
     console.log("");
-    console.log(chalk.green(`      cd ${appName} && ${startCommand}`));
+    console.log(chalk.green(`      cd ${appName}`));
+    console.log(chalk.green(`      ${startCommand}`));
     console.log("");
     console.log("");
   } else {
