@@ -1,0 +1,11 @@
+dist
+.next
+
+node_modules
+package-lock.json
+yarn.lock
+!/yarn.lock
+test/node_modules
+.pnpm-store/
+
+.DS_Store
