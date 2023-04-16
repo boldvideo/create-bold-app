@@ -123,6 +123,17 @@ const createEnvFiles = async (folderName: string, apiKey: string) => {
   await fs.promises.writeFile(envProductionPath, envProductionContent);
 };
 
+const cleanUp = (folderName?: string) => {
+  console.log();
+  if (folderName && fs.existsSync(folderName)) {
+    console.log(chalk.yellow("\nCleaning up..."));
+    fse.removeSync(folderName);
+  }
+  console.log(chalk.red("\nInterrupted. Exiting..."));
+  console.log();
+  process.exit(0);
+};
+
 const getAppName = async (appNameFromArg?: string): Promise<string> => {
   if (appNameFromArg) {
     const validationResult = validatePackageName(
@@ -138,24 +149,27 @@ const getAppName = async (appNameFromArg?: string): Promise<string> => {
     throw new Error("Your project name is invalid: " + problems![0]);
   }
 
-  const response = await prompts({
-    type: "text",
-    name: "appName",
-    message: "What is the name of your app?",
-    validate: (input: string) => {
-      const validationResult = validatePackageName(
-        path.basename(path.resolve(input))
-      );
-      if (validationResult.validForNewPackages) {
-        return true;
-      }
-      const problems = [
-        ...(validationResult.errors || []),
-        ...(validationResult.warnings || []),
-      ];
-      return "Your project name is invalid: " + problems![0];
+  const response = await prompts(
+    {
+      type: "text",
+      name: "appName",
+      message: "What is the name of your app?",
+      validate: (input: string) => {
+        const validationResult = validatePackageName(
+          path.basename(path.resolve(input))
+        );
+        if (validationResult.validForNewPackages) {
+          return true;
+        }
+        const problems = [
+          ...(validationResult.errors || []),
+          ...(validationResult.warnings || []),
+        ];
+        return "Your project name is invalid: " + problems![0];
+      },
     },
-  });
+    { onCancel: () => cleanUp() }
+  );
 
   return response.appName;
 };
@@ -185,10 +199,15 @@ const showSuccessMessage = (appName: string, packageManager: string | null) => {
 };
 
 const createBoldApp = async (appNameFromArg?: string) => {
-  console.log(chalk.green("Welcome to Create Bold App!"));
-  // console.log(chalk.green(logo + "Welcome to Create Bold App!"));
+  console.log(chalk.green(`Welcome to Create Bold App v${cli.pkg.version}!`));
 
   const appName = await getAppName(appNameFromArg);
+
+  // Register signal handlers
+  process.on("SIGINT", () => cleanUp(appName));
+  process.on("SIGQUIT", () => cleanUp(appName));
+  process.on("SIGBREAK", () => cleanUp(appName));
+
   // Check if folder already exists
   if (fs.existsSync(appName)) {
     console.error(
@@ -199,12 +218,15 @@ const createBoldApp = async (appNameFromArg?: string) => {
     return;
   }
 
-  const response = await prompts({
-    type: "text",
-    name: "apiKey",
-    message:
-      "Please enter your Bold Video API key\n(get it at at https://app.boldvideo.io/settings ):",
-  });
+  const response = await prompts(
+    {
+      type: "text",
+      name: "apiKey",
+      message:
+        "Please enter your Bold Video API key\n(get it at at https://app.boldvideo.io/settings ):",
+    },
+    { onCancel: () => cleanUp(appName) }
+  );
 
   const { apiKey } = response;
 
