@@ -9,7 +9,6 @@ import chalk from "chalk";
 import prompts from "prompts";
 import { exec } from "child_process";
 import fs from "fs";
-import fse from "fs-extra";
 import { fileURLToPath } from "url";
 import path from "path";
 import { EOL } from "os";
@@ -27,7 +26,24 @@ const createFolder = (folderName: string) => {
 };
 
 const copyTemplate = async (src: string, dest: string) => {
-  await fse.copy(src, dest);
+  const ncp = async (source: string, destination: string) => {
+    const entries = await fs.promises.readdir(source, { withFileTypes: true });
+
+    await fs.promises.mkdir(destination, { recursive: true });
+
+    for (const entry of entries) {
+      const srcPath = path.join(source, entry.name);
+      const destPath = path.join(destination, entry.name);
+
+      if (entry.isDirectory()) {
+        await ncp(srcPath, destPath);
+      } else {
+        await fs.promises.copyFile(srcPath, destPath);
+      }
+    }
+  };
+
+  await ncp(src, dest);
 };
 
 const detectPackageManager = async (): Promise<string | null> => {
@@ -127,7 +143,7 @@ const cleanUp = (folderName?: string) => {
   console.log();
   if (folderName && fs.existsSync(folderName)) {
     console.log(chalk.yellow("\nCleaning up..."));
-    fse.removeSync(folderName);
+    fs.rmSync(folderName, { recursive: true, force: true });
   }
   console.log(chalk.red("\nInterrupted. Exiting..."));
   console.log();
