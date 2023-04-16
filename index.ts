@@ -6,6 +6,7 @@ import commandExists from "command-exists";
 import ora from "ora";
 import { execa } from "execa";
 import chalk from "chalk";
+import gradient from "gradient-string";
 import prompts from "prompts";
 import { exec } from "child_process";
 import fs from "fs";
@@ -77,7 +78,7 @@ const installDependencies = async (
   try {
     await execa(command, args, { stdio: "pipe" });
     spinner.succeed(
-      chalk.green(`Installed dependencies using ${packageManager}!`)
+      chalk.whiteBright(`Installed dependencies using ${packageManager}!`)
     );
   } catch (error) {
     spinner.fail(chalk.redBright.bold("Problem during installation:"));
@@ -192,17 +193,19 @@ const getAppName = async (appNameFromArg?: string): Promise<string> => {
 
 const showSuccessMessage = (appName: string, packageManager: string | null) => {
   console.log("");
-  console.log(chalk.green("Bold app created successfully!"));
+  console.log(gradient.atlas("Bold app created successfully!"));
   console.log("");
 
   if (packageManager) {
     const startCommand =
-      packageManager === "yarn" ? "yarn dev" : `${packageManager} run dev`;
-    console.log(chalk.green(`To start the app, run the following commands:`));
+      packageManager === "yarn"
+        ? "yarn" + chalk.white(" dev")
+        : packageManager + chalk.white(" run dev");
+    console.log(chalk.white(`To start the app, run the following commands:`));
     console.log("");
     console.log("");
-    console.log(chalk.green(`      cd ${appName}`));
-    console.log(chalk.green(`      ${startCommand}`));
+    console.log(chalk.cyan("      cd " + chalk.white(`${appName}`)));
+    console.log(chalk.cyan("      " + startCommand));
     console.log("");
     console.log("");
   } else {
@@ -216,7 +219,10 @@ const showSuccessMessage = (appName: string, packageManager: string | null) => {
 
 const createBoldApp = async (appNameFromArg?: string) => {
   //console.log(chalk.green(`Welcome to Create Bold App v${cli.pkg.version}!`));
-  console.log(chalk.green(`Welcome to Create Bold App`));
+  console.log();
+  console.log();
+  console.log(chalk.cyan(`Welcome to Create Bold App`));
+  console.log();
 
   const appName = await getAppName(appNameFromArg);
 
@@ -240,7 +246,7 @@ const createBoldApp = async (appNameFromArg?: string) => {
       type: "text",
       name: "apiKey",
       message:
-        "Please enter your Bold Video API key\n(get it at at https://app.boldvideo.io/settings ):",
+        "Enter your Bold API key from https://app.boldvideo.io/settings:",
     },
     { onCancel: () => cleanUp(appName) }
   );
@@ -248,8 +254,8 @@ const createBoldApp = async (appNameFromArg?: string) => {
   const { apiKey } = response;
 
   console.log(
-    chalk.blue(
-      `Creating your bold app "${appName}" with API key "${apiKey}"...`
+    chalk.gray(
+      `  Creating your bold app "${appName}" with API key "${apiKey}"...`
     )
   );
 
