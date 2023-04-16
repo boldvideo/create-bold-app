@@ -1,6 +1,6 @@
 {
   "name": "create-bold-app",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A CLI tool for creating Bold Video apps in a jiffy.",
   "main": "index.js",
   "type": "module",
@@ -9,6 +9,7 @@
     "release": "ncc build ./index.ts -o ./dist/ --minify --no-cache --no-source-map-register",
     "dev": "ncc build ./index.ts -w -o dist/",
     "build": "pnpm release",
+    "prepublishOnly": "pnpm build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": "dist/index.js",
