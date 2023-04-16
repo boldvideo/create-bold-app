@@ -199,7 +199,8 @@ const showSuccessMessage = (appName: string, packageManager: string | null) => {
 };
 
 const createBoldApp = async (appNameFromArg?: string) => {
-  console.log(chalk.green(`Welcome to Create Bold App v${cli.pkg.version}!`));
+  //console.log(chalk.green(`Welcome to Create Bold App v${cli.pkg.version}!`));
+  console.log(chalk.green(`Welcome to Create Bold App`));
 
   const appName = await getAppName(appNameFromArg);
 
