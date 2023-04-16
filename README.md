@@ -26,6 +26,10 @@
   </a>
 </p>
 
+<p align="center">
+  <img width="750" src="./media/demo-install.svg">
+</p>
+
 ## Usage
 
 You can create a new project interactively by running:
