@@ -2,7 +2,6 @@
 
 import meow from "meow";
 import validatePackageName from "validate-npm-package-name";
-import terminalLink from "terminal-link";
 import commandExists from "command-exists";
 import ora from "ora";
 import { execa } from "execa";
@@ -14,18 +13,6 @@ import fse from "fs-extra";
 import { fileURLToPath } from "url";
 import path from "path";
 import { EOL } from "os";
-
-const logo = `
-                                                            
-  @@@@@@@@@@*      @@@@@@@@*   @@@@@@@@@@    @@@@@@@@@@@    
-  @@@@@@@@@@@@  *@@@@@@@@@@@@@ @@@@@@@@@@    @@@@@@@@@@@@@  
-  @@@@@@@@@@@@  @@@@@@@@@@@@@@@@@@@@@@@@@    @@@@@@@@@@@@@@ 
-  @@@@@@@@@@@  @@@@@@@@@@@@@@@@@@@@@@@@@@    @@@@@@@@@@@@@@ 
-  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ @@@@@@@@@@@@@@ 
-  @@@@@@@@@@@@@ @@@@@@@@@@@@@@ .@@@@@@@@@@@@ @@@@@@@@@@@@@  
-  ............    ...........   ............ ............
-
-`;
 
 const createFolder = (folderName: string) => {
   return new Promise<void>((resolve, reject) => {
@@ -212,15 +199,11 @@ const createBoldApp = async (appNameFromArg?: string) => {
     return;
   }
 
-  // const linkText = "get it here";
-  // const apiKeyLink = terminalLink(
-  //   linkText,
-  //   "https://app.boldvideo.io/settings"
-  // );
   const response = await prompts({
     type: "text",
     name: "apiKey",
-    message: `Please enter your Bold Video API key (you can at https://app.boldvideo.io/settings):`,
+    message:
+      "Please enter your Bold Video API key\n(get it at at https://app.boldvideo.io/settings ):",
   });
 
   const { apiKey } = response;
