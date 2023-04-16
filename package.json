@@ -9,7 +9,7 @@
     "release": "ncc build ./index.ts -o ./dist/ --minify --no-cache --no-source-map-register",
     "dev": "ncc build ./index.ts -w -o dist/",
     "build": "pnpm release",
-    "prepublishOnly": "pnpm build",
+    "prepublishOnly": "pnpm prerelease && pnpm build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": "dist/index.js",
