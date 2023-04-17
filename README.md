@@ -30,6 +30,11 @@
   <img width="750" src="./media/demo-install.svg">
 </p>
 
+<p align="center">
+	<img src="/media/screenshot-index.png" width="45%" /> 
+	<img src="/media/screenshot-player2.png" width="45%" /> 
+</p>
+
 ## Usage
 
 You can create a new project interactively by running:
