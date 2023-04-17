@@ -88,43 +88,25 @@ const installDependencies = async (
 };
 
 const createPackageJson = async (folderName: string, appName: string) => {
-  const packageJson = {
-    name: appName,
-    version: "0.1.0",
-    private: true,
-    scripts: {
-      dev: "next dev",
-      build: "next build",
-      start: "next start",
-      lint: "next lint",
-    },
-    dependencies: {
-      "@boldvideo/bold-js": "^0.1.0",
-      "@mux/mux-player-react": "^1.9.0",
-      "@next/font": "13.3.0",
-      "@types/node": "18.15.11",
-      "@types/react": "18.0.33",
-      "@types/react-dom": "18.0.11",
-      "@vercel/og": "^0.5.1",
-      "date-fns": "^2.29.3",
-      eslint: "8.37.0",
-      "eslint-config-next": "13.2.4",
-      next: "13.3.0",
-      react: "18.2.0",
-      "react-dom": "18.2.0",
-      swr: "^2.1.1",
-      typescript: "5.0.3",
-    },
-    devDependencies: {
-      autoprefixer: "^10.4.14",
-      postcss: "^8.4.21",
-      tailwindcss: "^3.3.1",
-    },
-  };
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const packageJsonPath = path.join(
+    __dirname,
+    "..",
+    "templates",
+    "next-tw-starter",
+    "package.json"
+  );
 
-  const packageJsonPath = path.join(folderName, "package.json");
+  const packageJsonContent = await fs.promises.readFile(packageJsonPath, {
+    encoding: "utf-8",
+  });
+  const packageJson = JSON.parse(packageJsonContent);
+  packageJson.name = appName;
+
+  const destPackageJsonPath = path.join(folderName, "package.json");
   await fs.promises.writeFile(
-    packageJsonPath,
+    destPackageJsonPath,
     JSON.stringify(packageJson, null, 2)
   );
 };
