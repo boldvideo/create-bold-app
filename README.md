@@ -35,6 +35,14 @@
 	<img src="https://github.com/boldvideo/create-bold-app/raw/main/.github/media/screenshot-player2.png?raw=true" width="45%" /> 
 </p>
 
+## System Requirements
+To run this script, ensure the following tools are installed:
+
+- **Git**: Required for cloning the template repository. Download from [git-scm.com](https://git-scm.com).
+- **Node.js**: The script is built with Node.js. We recommend the latest LTS version, available at [nodejs.org](https://nodejs.org).
+
+The script is compatible with Windows, macOS, and Linux, as long as the required tools are installed and configured.
+
 ## Usage
 
 You can create a new project interactively by running:

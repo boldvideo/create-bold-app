@@ -87,39 +87,41 @@ const installDependencies = async (
   }
 };
 
-const createPackageJson = async (folderName: string, appName: string) => {
-  const __filename = fileURLToPath(import.meta.url);
-  const __dirname = path.dirname(__filename);
-  const packageJsonPath = path.join(
-    __dirname,
-    "..",
-    "templates",
-    "next-tw-starter",
-    "package.json"
-  );
+const createPackageJson = async (appName: string) => {
+  const packageJsonPath = path.join(appName, "package.json");
 
-  const packageJsonContent = await fs.promises.readFile(packageJsonPath, {
-    encoding: "utf-8",
-  });
+  const packageJsonContent = await fs.promises.readFile(
+    packageJsonPath,
+    "utf-8"
+  );
   const packageJson = JSON.parse(packageJsonContent);
+
   packageJson.name = appName;
 
-  const destPackageJsonPath = path.join(folderName, "package.json");
   await fs.promises.writeFile(
-    destPackageJsonPath,
+    packageJsonPath,
     JSON.stringify(packageJson, null, 2)
   );
 };
 
-const createEnvFiles = async (folderName: string, apiKey: string) => {
-  const envDevelopmentContent = `NEXT_PUBLIC_BOLD_API_KEY=${apiKey}${EOL}`;
-  const envProductionContent = `NEXT_PUBLIC_BOLD_API_KEY=${EOL}`;
+const createEnvFiles = async (folder: string, apiKey: string) => {
+  const tmplPath = path.join(folder, ".env-template");
+  const tmplContent = await fs.promises.readFile(tmplPath, "utf-8");
 
-  const envDevelopmentPath = path.join(folderName, ".env.development");
-  const envProductionPath = path.join(folderName, ".env.production");
+  const devContent = tmplContent.replace(
+    "NEXT_PUBLIC_BOLD_API_KEY=",
+    `NEXT_PUBLIC_BOLD_API_KEY=${apiKey}`
+  );
+  const prodContent = tmplContent;
 
-  await fs.promises.writeFile(envDevelopmentPath, envDevelopmentContent);
-  await fs.promises.writeFile(envProductionPath, envProductionContent);
+  const devPath = path.join(folder, ".env.development");
+  const prodPath = path.join(folder, ".env.production");
+
+  await fs.promises.writeFile(devPath, devContent);
+  await fs.promises.writeFile(prodPath, prodContent);
+
+  // Remove the .env-template file
+  await fs.promises.unlink(tmplPath);
 };
 
 const cleanUp = (folderName?: string) => {
@@ -243,16 +245,17 @@ const createBoldApp = async (appNameFromArg?: string) => {
 
   try {
     await createFolder(appName);
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const templatePath = path.join(
-      __dirname,
-      "..",
-      "templates",
-      "next-tw-starter"
-    );
-    await copyTemplate(templatePath, appName);
-    await createPackageJson(appName, appName);
+
+    const repo = "https://github.com/boldvideo/nextjs-starter.git";
+    await execa("git", ["clone", "--depth", "1", repo, appName]);
+
+    // Remove the .git folder to create a fresh project
+    await fs.promises.rm(path.join(appName, ".git"), {
+      recursive: true,
+      force: true,
+    });
+
+    await createPackageJson(appName);
     await createEnvFiles(appName, apiKey);
     const packageManager = await detectPackageManager();
     await installDependencies(appName, packageManager);

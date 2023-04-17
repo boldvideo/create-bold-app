@@ -1,6 +1,6 @@
 {
   "name": "create-bold-app",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "A CLI tool for creating Bold Video apps in a jiffy.",
   "main": "index.js",
   "type": "module",
