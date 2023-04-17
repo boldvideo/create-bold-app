@@ -27,12 +27,12 @@
 </p>
 
 <p align="center">
-  <img width="750" src="./media/demo-install.svg">
+  <img width="750" src="https://github.com/boldvideo/create-bold-app/raw/main/.github/media/demo-install.svg?raw=true">
 </p>
 
 <p align="center">
-	<img src="/media/screenshot-index.png" width="45%" /> 
-	<img src="/media/screenshot-player2.png" width="45%" /> 
+	<img src="https://github.com/boldvideo/create-bold-app/raw/main/.github/media/screenshot-index.png?raw=true" width="45%" /> 
+	<img src="https://github.com/boldvideo/create-bold-app/raw/main/.github/media/screenshot-player2.png?raw=true" width="45%" /> 
 </p>
 
 ## Usage
