@@ -8,7 +8,6 @@ specifiers:
   '@types/validate-npm-package-name': ^4.0.0
   '@vercel/ncc': ^0.36.1
   chalk: ^5.2.0
-  command-exists: ^1.2.9
   commander: ^10.0.0
   execa: ^7.1.1
   gradient-string: ^2.0.2
@@ -29,7 +28,6 @@ devDependencies:
   '@types/validate-npm-package-name': 4.0.0
   '@vercel/ncc': 0.36.1
   chalk: 5.2.0
-  command-exists: 1.2.9
   commander: 10.0.0
   execa: 7.1.1
   gradient-string: 2.0.2
@@ -300,10 +298,6 @@ packages:
 
   /color-name/1.1.4:
     resolution: {integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==}
-    dev: true
-
-  /command-exists/1.2.9:
-    resolution: {integrity: sha512-LTQ/SGc+s0Xc0Fu5WaKnR0YiygZkm9eKFvyS+fRsU7/ZWFF8ykFM6Pc9aCVf1+xasOOZpO3BAVgVrKvsqKHV7w==}
     dev: true
 
   /commander/10.0.0:

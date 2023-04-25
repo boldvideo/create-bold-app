@@ -24,7 +24,6 @@
     "@types/validate-npm-package-name": "^4.0.0",
     "@vercel/ncc": "^0.36.1",
     "chalk": "^5.2.0",
-    "command-exists": "^1.2.9",
     "commander": "^10.0.0",
     "execa": "^7.1.1",
     "gradient-string": "^2.0.2",

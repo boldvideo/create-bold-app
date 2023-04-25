@@ -2,17 +2,14 @@
 
 import meow from "meow";
 import validatePackageName from "validate-npm-package-name";
-import commandExists from "command-exists";
 import ora from "ora";
 import { execa } from "execa";
 import chalk from "chalk";
 import gradient from "gradient-string";
 import prompts from "prompts";
-import { exec } from "child_process";
+import { exec, execSync } from "child_process";
 import fs from "fs";
-import { fileURLToPath } from "url";
 import path from "path";
-import { EOL } from "os";
 
 const createFolder = (folderName: string) => {
   return new Promise<void>((resolve, reject) => {
@@ -26,36 +23,38 @@ const createFolder = (folderName: string) => {
   });
 };
 
-const copyTemplate = async (src: string, dest: string) => {
-  const ncp = async (source: string, destination: string) => {
-    const entries = await fs.promises.readdir(source, { withFileTypes: true });
+const detectPackageManager = (): string => {
+  enum PackageManager {
+    NPM = "npm",
+    YARN = "yarn",
+    PNPM = "pnpm",
+  }
 
-    await fs.promises.mkdir(destination, { recursive: true });
-
-    for (const entry of entries) {
-      const srcPath = path.join(source, entry.name);
-      const destPath = path.join(destination, entry.name);
-
-      if (entry.isDirectory()) {
-        await ncp(srcPath, destPath);
-      } else {
-        await fs.promises.copyFile(srcPath, destPath);
-      }
+  const managers = Object.values(PackageManager);
+  for (const manager of managers) {
+    if (
+      process.env.npm_config_user_agent &&
+      process.env.npm_config_user_agent.startsWith(manager)
+    ) {
+      return manager;
     }
-  };
+  }
 
-  await ncp(src, dest);
-};
-
-const detectPackageManager = async (): Promise<string | null> => {
-  if (await commandExists("pnpm")) {
-    return "pnpm";
-  } else if (await commandExists("npm")) {
-    return "npm";
-  } else if (await commandExists("yarn")) {
-    return "yarn";
-  } else {
-    return null;
+  try {
+    execSync("npm --version", { stdio: "ignore" });
+    return PackageManager.NPM;
+  } catch {
+    try {
+      try {
+        execSync("yarn --version", { stdio: "ignore" });
+        return PackageManager.YARN;
+      } catch {
+        execSync("pnpm --version", { stdio: "ignore" });
+        return PackageManager.PNPM;
+      }
+    } catch {
+      return PackageManager.NPM;
+    }
   }
 };
 
@@ -262,7 +261,7 @@ const createBoldApp = async (appNameFromArg?: string) => {
     console.log(chalk.gray(`  Creating env files...`));
     await createEnvFiles(appName, apiKey);
     console.log(chalk.gray(`  Detecting package manager...`));
-    const packageManager = await detectPackageManager();
+    const packageManager = detectPackageManager();
     console.log(
       chalk.gray(`  Installing dependencies using ${packageManager}...`)
     );
