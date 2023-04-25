@@ -200,6 +200,12 @@ const showSuccessMessage = (appName: string, packageManager: string | null) => {
   }
 };
 
+function debugLog(message: string) {
+  if (cli.flags.debug) {
+    console.log(chalk.gray(message));
+  }
+}
+
 const createBoldApp = async (appNameFromArg?: string) => {
   //console.log(chalk.green(`Welcome to Create Bold App v${cli.pkg.version}!`));
   console.log();
@@ -246,25 +252,23 @@ const createBoldApp = async (appNameFromArg?: string) => {
     await createFolder(appName);
 
     const repo = "https://github.com/boldvideo/nextjs-starter.git";
-    console.log(chalk.gray(`  Cloning Repo "${repo}"...`));
+    debugLog(`  Cloning Repo "${repo}"...`);
     await execa("git", ["clone", "--depth", "1", repo, appName]);
 
     // Remove the .git folder to create a fresh project
-    console.log(chalk.gray(`  Cleaning Repo...`));
+    debugLog(`  Cleaning Repo...`);
     await fs.promises.rm(path.join(appName, ".git"), {
       recursive: true,
       force: true,
     });
 
-    console.log(chalk.gray(`  Creating package.json...`));
+    debugLog(`  Creating package.json...`);
     await createPackageJson(appName);
-    console.log(chalk.gray(`  Creating env files...`));
+    debugLog(`  Creating env files...`);
     await createEnvFiles(appName, apiKey);
-    console.log(chalk.gray(`  Detecting package manager...`));
+    debugLog(`  Detecting package manager...`);
     const packageManager = detectPackageManager();
-    console.log(
-      chalk.gray(`  Installing dependencies using ${packageManager}...`)
-    );
+    debugLog(`  Installing dependencies using ${packageManager}...`);
     await installDependencies(appName, packageManager);
     showSuccessMessage(appName, packageManager);
   } catch (error) {
@@ -275,13 +279,14 @@ const createBoldApp = async (appNameFromArg?: string) => {
 const cli = meow(
   `
     Usage
-      $ create-bold-app [appName]
+      $ create-bold-app [appName] [options]
 
     Options
-      --version   Show version number
+      --debug, -d      Show debug information
+      --version        Show version number
 
     Examples
-      $ create-bold-app my-test-app
+      $ create-bold-app my-test-app -d
 `,
   {
     importMeta: import.meta,
@@ -289,6 +294,11 @@ const cli = meow(
       version: {
         type: "boolean",
         alias: "v",
+      },
+      debug: {
+        type: "boolean",
+        alias: "d",
+        default: false,
       },
     },
   }
