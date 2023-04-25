@@ -247,17 +247,25 @@ const createBoldApp = async (appNameFromArg?: string) => {
     await createFolder(appName);
 
     const repo = "https://github.com/boldvideo/nextjs-starter.git";
+    console.log(chalk.gray(`  Cloning Repo "${repo}"...`));
     await execa("git", ["clone", "--depth", "1", repo, appName]);
 
     // Remove the .git folder to create a fresh project
+    console.log(chalk.gray(`  Cleaning Repo...`));
     await fs.promises.rm(path.join(appName, ".git"), {
       recursive: true,
       force: true,
     });
 
+    console.log(chalk.gray(`  Creating package.json...`));
     await createPackageJson(appName);
+    console.log(chalk.gray(`  Creating env files...`));
     await createEnvFiles(appName, apiKey);
+    console.log(chalk.gray(`  Detecting package manager...`));
     const packageManager = await detectPackageManager();
+    console.log(
+      chalk.gray(`  Installing dependencies using ${packageManager}...`)
+    );
     await installDependencies(appName, packageManager);
     showSuccessMessage(appName, packageManager);
   } catch (error) {
